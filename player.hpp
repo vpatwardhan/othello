@@ -7,6 +7,8 @@
 using namespace std;
 
 class Player {
+    Side side;
+    Board board;
 
 public:
     Player(Side side);
