@@ -17,7 +17,6 @@ Player::Player(Side side) {
      * 30 seconds.
      */
      side = side;
-     board = new Board();
 }
 
 /*
