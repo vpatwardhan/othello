@@ -1,5 +1,7 @@
 #include "player.hpp"
 
+using namespace std;
+
 #define BOARD_SIZE 8
 
 /*
@@ -7,7 +9,7 @@
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
  * within 30 seconds.
  */
-Player::Player(Side side) {
+Player::Player(Side s) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
 
@@ -16,8 +18,7 @@ Player::Player(Side side) {
      * precalculating things, etc.) However, remember that you will only have
      * 30 seconds.
      */
-     side = side;
-     board = new Board();
+     side = s;
 }
 
 /*
@@ -48,7 +49,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
             Move move(i, j);
             if (board.checkMove(&move, side)) {
                 board.doMove(&move, side);
-                break;
+                return new Move(i, j);
             }
         }
     }
