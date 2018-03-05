@@ -5,8 +5,8 @@
 using namespace std;
 
 #define BOARD_SIZE 8
-#define CORNER_BONUS 3
-#define EDGE_BONUS 2
+#define CORNER_BONUS 32
+#define EDGE_BONUS 8
 
 int Player::heuristic(Move move, Side s, Board b)
 {
@@ -14,6 +14,9 @@ int Player::heuristic(Move move, Side s, Board b)
     int total = 0;
     total += b.isEdge(move.getX(), move.getY()) * EDGE_BONUS;
     total += b.isCorner(move.getX(), move.getY()) * CORNER_BONUS;
+    total -= b.count(s);
+    b.doMove(&move, s);
+    total += b.count(s);
     return total;
 }
 
@@ -80,6 +83,13 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
 
-    board.doMove(&moves[best], side);
-    return new Move(moves[best]);
+    if (moves.size() > 0)
+    {
+        board.doMove(&moves[best], side);
+        return new Move(moves[best]);
+    }
+    else
+    {
+        return nullptr;
+    }
 }

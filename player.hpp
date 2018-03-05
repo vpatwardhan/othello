@@ -11,8 +11,12 @@ class Player {
     Board board;
 
     /* Get the color of the opposite side. */
-    inline Side getOtherSide() {
+    static inline Side otherSide(Side side) {
         return (Side)((int)(!(bool)(int)side));
+    }
+
+    inline Side getOtherSide() {
+        return otherSide(side);
     }
 
     /* Return how good a move is based on access to the corner and edge. */
