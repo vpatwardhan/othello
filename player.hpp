@@ -10,9 +10,13 @@ class Player {
     Side side;
     Board board;
 
+    /* Get the color of the opposite side. */
     inline Side getOtherSide() {
         return (Side)((int)(!(bool)(int)side));
     }
+
+    /* Return how good a move is based on access to the corner and edge. */
+    static int heuristic(Move move, Side s, Board b);
 
 public:
     Player(Side side);

@@ -1,8 +1,21 @@
 #include "player.hpp"
+#include <vector>
+#include <cassert>
 
 using namespace std;
 
 #define BOARD_SIZE 8
+#define CORNER_BONUS 3
+#define EDGE_BONUS 2
+
+int Player::heuristic(Move move, Side s, Board b)
+{
+    assert(b.checkMove(&move, s));
+    int total = 0;
+    total += b.isEdge(move.getX(), move.getY()) * EDGE_BONUS;
+    total += b.isCorner(move.getX(), move.getY()) * CORNER_BONUS;
+    return total;
+}
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -48,17 +61,32 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
     /* Process opponent's move. */
     board.doMove(opponentsMove, getOtherSide());
-    /* Do the first valid move we find. */
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
+    /* List all possible moves. */
+    vector<Move> moves;
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        for (int j = 0; j < BOARD_SIZE; j++)
+        {
             Move move(i, j);
-            if (board.checkMove(&move, side)) {
-                board.doMove(&move, side);
-                return new Move(i, j);
+            if (board.checkMove(&move, side))
+            {
+                moves.push_back(move);
             }
         }
     }
-    return nullptr;
+    /* Find best move by heuristic. */
+    int best = 0;
+    for (unsigned int i = 0; i < moves.size(); i++)
+    {
+        if (heuristic(moves[best], side, board) 
+            < heuristic(moves[i], side, board))
+        {
+            best = i;
+        }
+    }
+
+    board.doMove(&moves[best], side);
+    return new Move(moves[best]);
 }
 
 Move * Player::minimax(Move * opponentsMove, int msLeft, Side side, int depth)
