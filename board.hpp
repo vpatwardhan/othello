@@ -29,6 +29,16 @@ public:
     int countBlack();
     int countWhite();
 
+    inline bool isCorner(int x, int y)
+    {
+        return (x == 0 || x == 8) && (y == 0 || y == 8);
+    }
+
+    inline bool isEdge(int x, int y)
+    {
+        return (x == 0 || x == 8) || (y == 0 || y == 8);
+    }
+
     void setBoard(char data[]);
 };
 
