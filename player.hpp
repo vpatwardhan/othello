@@ -22,7 +22,7 @@ public:
     Player(Side side);
     ~Player();
 
-    Move *doMove(Move *opponentsMove, int msLeft);
+    Move * Player::minimax(Board b, int msLeft, Side s, int depth);
     void switchBoard(Board * b);
 
     // Flag to tell if the player is running within the test_minimax context

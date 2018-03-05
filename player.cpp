@@ -89,7 +89,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     return new Move(moves[best]);
 }
 
-Move * Player::minimax(Move * opponentsMove, int msLeft, Side side, int depth)
+Move * Player::minimax(Board b, int msLeft, Side s, int depth)
 {
     //heuristic(move, side, board)
     std::vector<Move> moves;
@@ -102,10 +102,12 @@ Move * Player::minimax(Move * opponentsMove, int msLeft, Side side, int depth)
             }
         }
     }
-
-    for (int i = 0;  i < moves.size(); i++)
+    if (depth == 0)
     {
-        hScores.append()
+        for (int i = 0;  i < moves.size(); i++)
+        {
+            hScores.append(heuristic(moves[i], (Side)((int)(!(bool)(int)s)),)
+        }
     }
 }
 
