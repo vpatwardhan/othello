@@ -116,7 +116,7 @@ Move * Player::minimax(Board b, int msLeft, Side s, int depth)
     {
         for (int i = 0;  i < moves.size(); i++)
         {
-            hScores.append(heuristic(moves[i], (Side)((int)(!(bool)(int)s)),)
+            hScores.append(heuristic(moves[i], otherSide(s), b.copy())
         }
     }
 }
