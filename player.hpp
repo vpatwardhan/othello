@@ -10,6 +10,10 @@ class Player {
     Side side;
     Board board;
 
+    inline Side getOtherSide() {
+        return (Side)((int)(!(bool)(int)side));
+    }
+
 public:
     Player(Side side);
     ~Player();
