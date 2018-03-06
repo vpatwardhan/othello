@@ -26,14 +26,14 @@ public:
     Player(Side side);
     ~Player();
 
-    Move * Player::minimax(Board b, int msLeft, Side s, int depth);
+    Move * doMove(Move *opponentsMove, int msLeft);
     void switchBoard(Board * b);
 
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
 
 private:
-    Move * minimax(Move * opponentsMove, int msLeft, Side side);
+    int minimax(Board b, int msLeft, Side s, int depth, Move m);
     
 };
 
