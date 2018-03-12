@@ -20,7 +20,7 @@ class Player {
     }
 
     /* Return how good a move is based on access to the corner and edge. */
-    static int heuristic(Move move, Side s, Board b);
+    int heuristic(Move move, Side s, Board b);
 
 public:
     Player(Side side);

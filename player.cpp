@@ -21,7 +21,7 @@ int Player::heuristic(Move move, Side s, Board b)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
-            if (b.get(s, i, j))
+            if (b.get(side, i, j))
             {
                 if (b.isEdge(i, j))
                 {
@@ -34,7 +34,7 @@ int Player::heuristic(Move move, Side s, Board b)
                 total++;
             }
             
-            else if (b.get(otherSide(s), i, j))
+            else if (b.get(otherSide(side), i, j))
             {
                 if (b.isEdge(i, j))
                 {
@@ -116,7 +116,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     int bestScore = INT_MIN;
     for (unsigned int i = 0; i < moves.size(); i++)
     {
-        int moveScore = minimax(board, msLeft, getOtherSide(), 2, moves[i]);
+        int moveScore = minimax(board, msLeft, getOtherSide(), 4, moves[i]);
         if (bestScore < moveScore)
         {
             best = i;
@@ -163,13 +163,13 @@ int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
 
     /* Base Case */
     if (depth == 1){
-        int best = heuristic(moves[0], s, b);
+        int best = INT_MIN;
         for (unsigned int i = 0; i < moves.size(); i++)
         {
             int result = heuristic(moves[i], s, b);
             if ((result > best && side == s) || (result < best && side != s))
             {
-                best = heuristic(moves[i], s, b);
+                best = result;
             }
         }
         return best;
