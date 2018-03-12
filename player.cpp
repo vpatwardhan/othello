@@ -1,22 +1,54 @@
 #include "player.hpp"
 #include <vector>
 #include <cassert>
+#include <limits.h>
 
 using namespace std;
 
 #define BOARD_SIZE 8
 #define CORNER_BONUS 32
 #define EDGE_BONUS 8
+#define WIN_VALUE 300
+#define PASS_PENALTY 0
 
 int Player::heuristic(Move move, Side s, Board b)
 {
     assert(b.checkMove(&move, s));
-    int total = 0;
-    total += b.isEdge(move.getX(), move.getY()) * EDGE_BONUS;
-    total += b.isCorner(move.getX(), move.getY()) * CORNER_BONUS;
-    total -= b.count(s);
+
     b.doMove(&move, s);
-    total += b.count(s);
+    int total = 0;
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        for (int j = 0; j < BOARD_SIZE; j++)
+        {
+            if (b.get(s, i, j))
+            {
+                if (b.isEdge(i, j))
+                {
+                    total += EDGE_BONUS;
+                }
+                else if (b.isCorner(i, j))
+                {
+                    total += CORNER_BONUS;
+                }
+                total++;
+            }
+            
+            else if (b.get(otherSide(s), i, j))
+            {
+                if (b.isEdge(i, j))
+                {
+                    total -= EDGE_BONUS;
+                }
+                else if (b.isCorner(i, j))
+                {
+                    total -= CORNER_BONUS;
+                }
+                total--;
+            }
+        }
+    }
+
     return total;
 }
 
@@ -62,12 +94,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     /* Process opponent's move. */
     board.doMove(opponentsMove, getOtherSide());
     /* List all possible moves. */
+    if (board.hasMoves(side) == 0)
+    {
+        return nullptr;
+    }
     vector<Move> moves;
     for (int i = 0; i < BOARD_SIZE; i++)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
-            Move move(i, j);
+            Move move = Move(i, j);
             if (board.checkMove(&move, side))
             {
                 moves.push_back(move);
@@ -76,55 +112,49 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
 
     /* Find best move by minimax. */
-    if (testingMinimax)
-    {
-        int best = 0;
-        for (unsigned int i = 0; i < moves.size(); i++)
-        {
-            if (minimax(board, msLeft, getOtherSide(), 2, moves[best]) 
-                < minimax(board, msLeft, getOtherSide(), 2, moves[i]))
-            {
-                best = i;
-            }
-        }
-        return new Move(moves[best]);
-    }
-
-    /* Find best move by heuristic. */
     int best = 0;
+    int bestScore = INT_MIN;
     for (unsigned int i = 0; i < moves.size(); i++)
     {
-        if (heuristic(moves[best], side, board) 
-            < heuristic(moves[i], side, board))
+        int moveScore = minimax(board, msLeft, getOtherSide(), 2, moves[i]);
+        if (bestScore < moveScore)
         {
             best = i;
+            bestScore = moveScore;
         }
     }
 
-    if (moves.size() > 0)
-    {
+
         board.doMove(&moves[best], side);
         return new Move(moves[best]);
-    }
-    else
-    {
-        return nullptr;
-    }
 }
 
 int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
 {
+    
     /* Process move in question. */
-    b.doMove(&m, s);
-
+    b.doMove(&m, otherSide(s));
     /* Find all possible moves. */
+    if (!b.hasMoves(s))
+    {
+        if (b.isDone())
+        {
+            if (b.count(s) > b.count(side))
+            {
+                return -WIN_VALUE;
+            }
+            return WIN_VALUE;
+        }
+        return PASS_PENALTY;
+    }
+
     vector<Move> moves;
     for (int i = 0; i < BOARD_SIZE; i++)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
             Move move(i, j);
-            if (b.checkMove(&move, side))
+            if (b.checkMove(&move, s))
             {
                 moves.push_back(move);
             }
@@ -133,14 +163,13 @@ int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
 
     /* Base Case */
     if (depth == 1){
-        int best = heuristic(moves[0], side, b);
+        int best = heuristic(moves[0], s, b);
         for (unsigned int i = 0; i < moves.size(); i++)
         {
-            if ((heuristic(moves[i], side, b) 
-                > best && side == s) || (heuristic(moves[i], side, b) 
-                < best && side != s))
+            int result = heuristic(moves[i], s, b);
+            if ((result > best && side == s) || (result < best && side != s))
             {
-                best = heuristic(moves[i], side, b);
+                best = heuristic(moves[i], s, b);
             }
         }
         return best;
@@ -148,12 +177,10 @@ int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
 
     /* Find best move by minimax. */
 
-    int best = heuristic(moves[0], side, b) + 
-                    minimax(b, msLeft, otherSide(s), depth - 1, moves[0]);
+    int best = minimax(b, msLeft, otherSide(s), depth - 1, moves[0]);
     for (unsigned int i = 0; i < moves.size(); i++)
     {
-        int result = heuristic(moves[i], side, b) + 
-                    minimax(b, msLeft, otherSide(s), depth - 1, moves[i]);
+        int result = minimax(b, msLeft, otherSide(s), depth - 1, moves[i]);
         if ((s == side && result > best) || (s != side && result < best)){
             best = result;
         }
