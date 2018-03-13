@@ -6,7 +6,7 @@
 using namespace std;
 
 #define BOARD_SIZE 8
-#define CORNER_BONUS 32
+#define CORNER_BONUS 40
 #define EDGE_BONUS 8
 #define WIN_VALUE 300
 #define PASS_PENALTY 0
@@ -16,37 +16,82 @@ int Player::heuristic(Move move, Side s, Board b)
     assert(b.checkMove(&move, s));
 
     b.doMove(&move, s);
-    int total = 0;
-    for (int i = 0; i < BOARD_SIZE; i++)
-    {
-        for (int j = 0; j < BOARD_SIZE; j++)
+    int total = b.count(s) - b.count(otherSide(s));
+    for (int i = 1; i < BOARD_SIZE-1; i++)
+    {   
+        //top row edges
+        if (b.get(s,i,0))
         {
-            if (b.get(side, i, j))
-            {
-                if (b.isEdge(i, j))
-                {
-                    total += EDGE_BONUS;
-                }
-                else if (b.isCorner(i, j))
-                {
-                    total += CORNER_BONUS;
-                }
-                total++;
-            }
-            
-            else if (b.get(otherSide(side), i, j))
-            {
-                if (b.isEdge(i, j))
-                {
-                    total -= EDGE_BONUS;
-                }
-                else if (b.isCorner(i, j))
-                {
-                    total -= CORNER_BONUS;
-                }
-                total--;
-            }
+            total += EDGE_BONUS;
         }
+        else if(b.get(otherSide(s),i, 0))
+        {
+            total -= EDGE_BONUS;
+        }
+
+        //bottom row edges
+        if (b.get(s,i,BOARD_SIZE - 1))
+        {
+            total += EDGE_BONUS;
+        }
+        else if(b.get(otherSide(s),i, BOARD_SIZE-1))
+        {
+            total -= EDGE_BONUS;
+        }
+
+        //left column edges
+        if (b.get(s, 0, i))
+        {
+            total += EDGE_BONUS;
+        }
+        else if(b.get(otherSide(s), 0, i))
+        {
+            total -= EDGE_BONUS;
+        }
+
+        //right column edges
+        if (b.get(s,0,BOARD_SIZE-1))
+        {
+            total += EDGE_BONUS;
+        }
+        else if(b.get(otherSide(s),0, BOARD_SIZE-1))
+        {
+            total -= EDGE_BONUS;
+        }
+    }
+    if (b.get(s, 0,0))
+    {
+        total += CORNER_BONUS;
+    }
+    else if (b.get(otherSide(s), 0,0))
+    {
+        total -= CORNER_BONUS;
+    }
+
+    if (b.get(s, 0,BOARD_SIZE - 1))
+    {
+        total += CORNER_BONUS;
+    }
+    else if (b.get(otherSide(s), 0,BOARD_SIZE - 1))
+    {
+        total -= CORNER_BONUS;
+    }
+
+    if (b.get(s, BOARD_SIZE - 1,0))
+    {
+        total += CORNER_BONUS;
+    }
+    else if (b.get(otherSide(s), BOARD_SIZE - 1,0))
+    {
+        total -= CORNER_BONUS;
+    }
+    if (b.get(s, BOARD_SIZE - 1,BOARD_SIZE - 1))
+    {
+        total += CORNER_BONUS;
+    }
+    else if (b.get(otherSide(s), BOARD_SIZE - 1,BOARD_SIZE - 1))
+    {
+        total -= CORNER_BONUS;
     }
 
     return total;
@@ -166,8 +211,9 @@ int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
         int best = INT_MIN;
         for (unsigned int i = 0; i < moves.size(); i++)
         {
-            int result = heuristic(moves[i], s, b);
-            if ((result > best && side == s) || (result < best && side != s))
+            
+            int result = heuristic(moves[i], side, b);
+            if (result > best)
             {
                 best = result;
             }
