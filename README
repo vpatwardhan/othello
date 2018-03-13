@@ -1,0 +1,12 @@
+Vivienne: 
+    Player()
+    minimax
+    getting minimax test to work
+
+Tiffany: 
+    first working iteration of doMove()
+    heuristic function
+    some bugfixes
+    this readme
+
+We made no improvements to make it tournament-worthy. I did try increasing the minimax depth to more than 2, but it started returning null and gdb didn't recognize any of the breakpoints I tried to set.
