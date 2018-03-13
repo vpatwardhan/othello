@@ -2,6 +2,9 @@ Vivienne:
     Player()
     minimax
     getting minimax test to work
+    updating heuristic and minimax to work at depth 4
+    alpha/beta pruning
+    (updates to this readme)
 
 Tiffany: 
     first working iteration of doMove()
@@ -9,4 +12,6 @@ Tiffany:
     some bugfixes
     this readme
 
-We made no improvements to make it tournament-worthy. I did try increasing the minimax depth to more than 2, but it started returning null and gdb didn't recognize any of the breakpoints I tried to set.
+Implemented alpha-beta pruning, updated heuristic and minimax. As of 3/13/15, the program works fairly quickly at depth 4, 
+ beating ConstantTimePlayer and BetterPlayer. (For some reason, though, the program only works at even depths, 
+throwing null move errors at odd depths even though the depth shouldn't affect the moves the program chooses from.)

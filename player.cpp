@@ -161,7 +161,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     int bestScore = INT_MIN;
     for (unsigned int i = 0; i < moves.size(); i++)
     {
-        int moveScore = minimax(board, msLeft, getOtherSide(), 4, moves[i]);
+        int moveScore = minimax(board, msLeft, getOtherSide(), 4, moves[i],
+            INT_MIN, INT_MAX);
         if (bestScore < moveScore)
         {
             best = i;
@@ -174,7 +175,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         return new Move(moves[best]);
 }
 
-int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
+int Player::minimax(Board b, int msLeft, Side s, int depth, Move m, int alpha, int beta)
 {
     
     /* Process move in question. */
@@ -184,11 +185,11 @@ int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
     {
         if (b.isDone())
         {
-            if (b.count(s) > b.count(side))
+            if (b.count(side) > b.count(getOtherSide()))
             {
-                return -WIN_VALUE;
+                return WIN_VALUE;
             }
-            return WIN_VALUE;
+            return -WIN_VALUE;
         }
         return PASS_PENALTY;
     }
@@ -209,30 +210,81 @@ int Player::minimax(Board b, int msLeft, Side s, int depth, Move m)
     /* Base Case */
     if (depth == 1){
         int best = INT_MIN;
-        for (unsigned int i = 0; i < moves.size(); i++)
+        if (side != s)
         {
-            
-            int result = heuristic(moves[i], side, b);
-            if (result > best)
+            best = INT_MAX;
+            for (unsigned int i = 0; i < moves.size(); i++)
             {
-                best = result;
+                
+                int result = heuristic(moves[i], side, b);
+                if (result < best)
+                {
+                    best = result;
+                }
             }
+            return best;
         }
-        return best;
+        else
+        {
+            for (unsigned int i = 0; i < moves.size(); i++)
+            {
+                
+                int result = heuristic(moves[i], side, b);
+                if (result > best)
+                {
+                    best = result;
+                }
+            }
+            return best;
+        }
     }
 
     /* Find best move by minimax. */
 
-    int best = minimax(b, msLeft, otherSide(s), depth - 1, moves[0]);
-    for (unsigned int i = 0; i < moves.size(); i++)
+    int best = minimax(b, msLeft, otherSide(s), depth - 1, moves[0],
+        alpha, beta);
+    if (s == side)
     {
-        int result = minimax(b, msLeft, otherSide(s), depth - 1, moves[i]);
-        if ((s == side && result > best) || (s != side && result < best)){
-            best = result;
-        }
+        for (unsigned int i = 0; i < moves.size(); i++)
+        {
+            int result = minimax(b, msLeft, otherSide(s), depth - 1, moves[i],
+                alpha, beta);
+            if (result > best)
+            {
+                best = result;
+            }
+            if (alpha < best)
+            {
+                alpha = best;
+            }
+            if (beta <= alpha)
+            {
+                break;
+            }
 
+        }
+        return best;
     }
-    return best;
+    else
+    {
+        for (unsigned int i = 0; i < moves.size(); i++)
+        {
+            int result = minimax(b, msLeft, otherSide(s), depth - 1, moves[i],
+                alpha, beta);
+            if (result < best){
+                best = result;
+            }
+            if (beta < best)
+            {
+                beta = best;
+            }
+            if (beta <= alpha)
+            {
+                break;
+            }
+        }
+        return best;
+    }
 
 }
 
